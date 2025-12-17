@@ -86,3 +86,11 @@ func (t Timestamp) Value() (driver.Value, error) {
 
 	return t.String(), nil
 }
+
+func (j Timestamp) ValueOrZero() string {
+	if j == (Timestamp{}) {
+		return ""
+	}
+	
+	return j.String()
+}
