@@ -87,7 +87,7 @@ func (t Timestamp) Value() (driver.Value, error) {
 	return t.String(), nil
 }
 
-func (t *Timestamp) Scan(v any) error {
+func (t *Timestamp) Scan(v interface{}) error {
 	if v == nil {
 		*t = Timestamp(time.Time{})
 		return nil
