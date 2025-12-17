@@ -3,7 +3,6 @@ package helper
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 )
@@ -88,37 +87,16 @@ func (t Timestamp) Value() (driver.Value, error) {
 	return t.String(), nil
 }
 
-func (t *Timestamp) Scan(value interface{}) error {
-	if value == nil {
+func (t *Timestamp) Scan(v any) error {
+	if v == nil {
 		*t = Timestamp(time.Time{})
 		return nil
 	}
-
-	switch v := value.(type) {
-	case time.Time:
-		*t = Timestamp(v)
-	case []byte:
-		ts, err := time.Parse(TimestampLayout, string(v))
-		if err != nil {
-			// Try parsing as standard RFC3339 if custom layout fails
-			ts, err = time.Parse(time.RFC3339, string(v))
-			if err != nil {
-				return err
-			}
-		}
-		*t = Timestamp(ts)
-	case string:
-		ts, err := time.Parse(TimestampLayout, v)
-		if err != nil {
-			// Try parsing as standard RFC3339 if custom layout fails
-			ts, err = time.Parse(time.RFC3339, v)
-			if err != nil {
-				return err
-			}
-		}
-		*t = Timestamp(ts)
-	default:
-		return fmt.Errorf("cannot scan type %T into Timestamp", v)
+	ts, ok := v.(time.Time)
+	if !ok {
+		return nil
 	}
+
+	*t = Timestamp(ts)
 	return nil
 }
