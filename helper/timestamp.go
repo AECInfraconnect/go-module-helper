@@ -9,7 +9,10 @@ import (
 
 type Timestamp time.Time
 
-const TimestampLayout = "2006-01-02 15:04:05-07"
+const (
+	TimestampLayout = "2006-01-02 15:04:05-07"
+	TZ              = "Asia/Bangkok"
+)
 
 /*
 ------------------------
@@ -21,7 +24,7 @@ func NewTimestampFromString(s string) Timestamp {
 	if s == "" {
 		return Timestamp(time.Time{})
 	}
-	loc, _ := time.LoadLocation("Asia/Bangkok")
+	loc, _ := time.LoadLocation(TZ)
 	ts, err := time.ParseInLocation(TimestampLayout, s, loc)
 	if err != nil {
 		panic(err)
@@ -37,7 +40,6 @@ func NewTimestampFromTime(t time.Time) Timestamp {
 		panic(err)
 	}
 	ts = ts.In(loc)
-
 	return Timestamp(ts)
 }
 
@@ -48,7 +50,6 @@ func NewTimestampAddDayFromTime(t time.Time, years, months, days int) Timestamp 
 		panic(err)
 	}
 	ts = ts.In(loc).AddDate(years, months, days)
-
 	return Timestamp(ts)
 }
 
@@ -71,32 +72,21 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*t = Timestamp(ts)
-
 	return nil
 }
 
 func (t Timestamp) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.Format(TimestampLayout))
+	if t == (Timestamp{}) {
+		return nil, nil
+	}
+	loc, _ := time.LoadLocation(TZ)
+	ts := time.Time(t).In(loc)
+	return json.Marshal(ts.Format(TimestampLayout))
 }
 
 func (t Timestamp) Value() (driver.Value, error) {
 	if t == (Timestamp{}) {
 		return nil, nil
 	}
-
 	return t.String(), nil
-}
-
-func (t *Timestamp) Scan(v interface{}) error {
-	if v == nil {
-		*t = Timestamp(time.Time{})
-		return nil
-	}
-	ts, ok := v.(time.Time)
-	if !ok {
-		return nil
-	}
-
-	*t = Timestamp(ts)
-	return nil
 }
