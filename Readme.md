@@ -1,3 +1,0 @@
-```bash
-go get github.com/AECInfraconnect/go-module-helper@v1
-```
