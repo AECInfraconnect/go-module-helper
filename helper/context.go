@@ -8,8 +8,7 @@ import (
 // Context keys
 const (
 	ContextKeyUserID     = "user_id"
-	ContextKeyRequestID  = "request_id"
-	ContextKeyAPIKeyAuth = "api_key_auth"
+	ContextKeyAPIKeyAuth = "apiKey"
 )
 
 // GetUserIDFromContext retrieves user ID from context
@@ -21,20 +20,6 @@ func GetUserIDFromContext(c *gin.Context) (uuid.UUID, bool) {
 
 	id, ok := userID.(uuid.UUID)
 	return id, ok
-}
-
-// GetRequestIDFromContext retrieves request ID from context
-func GetRequestIDFromContext(c *gin.Context) string {
-	requestID, exists := c.Get(ContextKeyRequestID)
-	if !exists {
-		return ""
-	}
-
-	id, ok := requestID.(string)
-	if !ok {
-		return ""
-	}
-	return id
 }
 
 // GetIPAddress retrieves client IP address
