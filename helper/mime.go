@@ -6,7 +6,19 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/gabriel-vasile/mimetype"
 )
+
+func GetFileMimeType(buf io.Reader) (buffer bytes.Buffer, contentType string, extension string, err error) {
+	if _, err = io.Copy(&buffer, buf); err != nil {
+		return
+	}
+	mime := mimetype.Detect(buffer.Bytes())
+	contentType = mime.String()
+	extension = mime.Extension()
+	return
+}
 
 // GetMimeType detects MIME type from reader and returns buffer, content type, extension, and error
 func GetMimeType(reader io.Reader) (*bytes.Buffer, string, string, error) {
