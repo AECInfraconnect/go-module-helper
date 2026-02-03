@@ -138,3 +138,35 @@ func (p *Paginator) PaginateGORM(db *gorm.DB, dest any) error {
 	offset := (p.Page - 1) * p.Limit
 	return db.Offset(offset).Limit(p.Limit).Find(dest).Error
 }
+
+// Pagination represents pagination information in a standardized format.
+// This struct uses uint types and includes both offset/limit and page-based fields.
+type Pagination struct {
+	TotalRecords uint `json:"total_records"` // Total number of records across all pages
+	TotalPages   uint `json:"total_pages"`   // Total number of pages
+	PageSize     uint `json:"page_size"`     // Number of items per page (same as Limit)
+	Page         uint `json:"page"`          // Current page number (1-indexed)
+	Offset       uint `json:"offset"`        // Offset for database queries (calculated)
+	Limit        uint `json:"limit"`         // Number of items to fetch (same as PageSize)
+}
+
+// ToPagination converts Paginator to Pagination format.
+// This method provides compatibility with APIs that expect the Pagination struct format.
+//
+// Example:
+//
+//	paginator := helper.NewPaginatorWithParams(2, 20)
+//	paginator.SetPaginatorByAllRows(100)
+//	pagination := paginator.ToPagination()
+//	// pagination.Page = 2, pagination.Offset = 20, pagination.TotalRecords = 100
+func (p *Paginator) ToPagination() Pagination {
+	offset := (p.Page - 1) * p.Limit
+	return Pagination{
+		TotalRecords: uint(p.TotalEntrySizes),
+		TotalPages:   uint(p.TotalPages),
+		PageSize:     uint(p.Limit),
+		Page:         uint(p.Page),
+		Offset:       uint(offset),
+		Limit:        uint(p.Limit),
+	}
+}
